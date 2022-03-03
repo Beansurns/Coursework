@@ -8,7 +8,7 @@ screen = pygame.display.set_mode([s_width,s_height])
 class Blocks:
     def __init__(self, width=10, height=10, pos=(1900,0), colour=(255,255,255)):
         self.width = width
-        self.heihgt = height
+        self.height = height
         self.pos = pos
         self.colour = colour
         
@@ -21,22 +21,22 @@ class Blocks:
         
 
 class Players:
-    def __init__(self, width=10, height=20, pos=(1900,0), colour=(255,255,255)):
+    def __init__(self, width=10, height=20, pos=(1900, 0), colour=(255, 255, 255)):
         self.width = width
         self.height = height
         self.pos = pos
         self.colour = colour
         
-    def update():
+    def update(self):
         pass
     
-    def draw():
-        pass
+    def draw(self):
+        pygame.draw.rect(screen, self.colour, pygame.Rect(self.pos[0], self.pos[1], self.width, self.height))
     
     
 
 
-
+players = []
 
 running = True
 while running:
