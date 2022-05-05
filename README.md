@@ -1,5 +1,5 @@
 # Round 1v1 shooter
-stick fight game
+round 1v1 shooter game
 
 potential idea for corsework
 
