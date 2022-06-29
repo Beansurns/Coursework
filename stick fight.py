@@ -6,6 +6,8 @@ pygame.init()
 s_width, s_height = 1900, 950
 screen = pygame.display.set_mode([s_width,s_height])
 g = 0.02
+ydrag = 0.9
+xdrag = 0.6
 
 class Blocks:
     def __init__(self, width=10, height=10, pos=(1900,0), colour=(255,255,255)):
@@ -23,34 +25,56 @@ class Blocks:
         
 
 class Players:
-    def __init__(self, radius=10, pos=(1900, 0), colour=(255, 255, 255), xvel=0, yvel=0):
+    def __init__(self, radius=10, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None, keyleft = None, keyright = None, xvel=0, yvel=0, xacc=0, yacc=0, ):
         self.radius = radius
         self.pos = pos
         self.colour = colour
         self.xvel = xvel
         self.yvel = yvel
-        
+        self.xacc = xacc
+        self.yacc = yacc
+        self.ground = False
+        self.num = num
+        self.keyup = keyup
+        self.keydown = keydown
+        self.keyleft = keyleft
+        self.keyright = keyright
+
     def update(self):
-        self.yvel += g
+        self.yacc += g
+        self.yacc = self.yacc * ydrag
+        self.yvel += self.yacc
+        self.xacc = self.xacc * xdrag
+        self.xvel += self.xacc
         self.pos = (self.pos[0]+self.xvel,self.pos[1]+self.yvel)
         #Collision detection between players and surfaces
         for block in blocks:
             if (self.pos[1] + self.radius) >= block.pos[1]:
                 self.pos = (self.pos[0], block.pos[1]-self.radius)
                 self.yvel = 0
+                self.ground = True
+        #movement
+        keys = pygame.key.get_pressed()
+        if keys[self.keyleft]:
+            self.xacc += -0.01
+        if keys[self.keyright]:
+            self.xacc += 0.01
+        if keys[self.keyup] and self.ground:
+            self.yacc += -1.5
+            self.ground = False
+        if keys[self.keydown]:
+            self.xacc += 0.01
         self.draw()
     
     def draw(self):
         #drawing the players in the game
         pygame.draw.circle(screen, self.colour, (int(self.pos[0]), int(self.pos[1])), self.radius)
-    
-
-#TODO keybind movement
-
 
 
 #creating players and surfaces
-players = [Players(50, (1100, 475), (2, 148, 165)), Players(50, (800, 475), (193, 64, 61))]
+players = [Players(50, (1100, 475), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT)
+    , Players(50, (800, 475), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a, keyright = pygame.K_d)]
+
 #TODO use tiles
 blocks = [Blocks(1900, 20, (0,930), (255,255,255))]
 running = True
@@ -60,26 +84,6 @@ while running:
         
         if event.type == pygame.QUIT:
             running = False
-
-    #checking for key presses and implementing the actions accordingly
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        players[1].xvel = players[1].xvel - 0.1
-    if keys[pygame.K_RIGHT]:
-        players[1].xvel = players[1].xvel + 0.1
-    if keys[pygame.K_UP]:
-        players[1].yvel = players[1].yvel - 0.1
-    if keys[pygame.K_DOWN]:
-        players[1].yvel = players[1].yvel + 0.1
-
-    if keys[pygame.K_a]:
-        players[0].xvel = players[0].xvel - 0.1
-    if keys[pygame.K_d]:
-        players[0].xvel = players[0].xvel + 0.1
-    if keys[pygame.K_w]:
-        players[0].yvel = players[0].yvel - 0.1
-    if keys[pygame.K_s]:
-        players[0].yvel = players[0].yvel + 0.1
 
     screen.fill((43, 45, 47))
     for player in players:
