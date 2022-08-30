@@ -5,9 +5,10 @@ pygame.init()
 #setting variables
 s_width, s_height = 1900, 950
 screen = pygame.display.set_mode([s_width,s_height])
-g = 0.02
-ydrag = 0.9
+g = 0.008
+ydrag = 0.8
 xdrag = 0.6
+drag = 0.01
 
 class Blocks:
     def __init__(self, width=10, height=10, pos=(1900,0), colour=(255,255,255)):
@@ -46,13 +47,21 @@ class Players:
         self.yvel += self.yacc
         self.xacc = self.xacc * xdrag
         self.xvel += self.xacc
+        if self.xvel > 0:
+            self.xvel -= drag
+        elif self.xvel < 0:
+            self.xvel += drag
+        else:
+            None
         self.pos = (self.pos[0]+self.xvel,self.pos[1]+self.yvel)
         #Collision detection between players and surfaces
         for block in blocks:
-            if (self.pos[1] + self.radius) >= block.pos[1]:
+            if (self.pos[1] + self.radius) >= block.pos[1] and (self.pos[0] > block.pos[0] and self.pos[0] < (block.pos[0] + block.width)):
                 self.pos = (self.pos[0], block.pos[1]-self.radius)
                 self.yvel = 0
                 self.ground = True
+            if (self.pos[0] + self.radius) == block.pos[1]:
+                self.xvel = 0
         #movement
         keys = pygame.key.get_pressed()
         if keys[self.keyleft]:
@@ -63,20 +72,21 @@ class Players:
             self.yacc += -1.5
             self.ground = False
         if keys[self.keydown]:
-            self.xacc += 0.01
+            self.yacc += 0.01
         self.draw()
     
     def draw(self):
         #drawing the players in the game
         pygame.draw.circle(screen, self.colour, (int(self.pos[0]), int(self.pos[1])), self.radius)
+        print(self.pos[0],self.pos[1])
 
 
 #creating players and surfaces
 players = [Players(50, (1100, 475), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT)
     , Players(50, (800, 475), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a, keyright = pygame.K_d)]
 
-#TODO use tiles
-blocks = [Blocks(1900, 20, (0,930), (255,255,255))]
+
+blocks = [Blocks(1900, 20, (0,930), (255,255,255)), Blocks(20, 950, (0,0), (255,255,255)), Blocks(20, 950, (1880,0), (255,255,255))]
 running = True
 while running:
     
@@ -86,10 +96,10 @@ while running:
             running = False
 
     screen.fill((43, 45, 47))
-    for player in players:
-        player.update()
     for block in blocks:
         block.update()
+    for player in players:
+        player.update()
     pygame.display.flip()
 
             
