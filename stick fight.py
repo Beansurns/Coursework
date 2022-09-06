@@ -75,11 +75,10 @@ class Players:
             elif border.vert == True and border.tr == True and -1 < ((self.pos[0] - self.radius) - border.pos[0]) < 1 and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
                 self.xvel = 0
                 self.pos = (border.pos[0] + border.width + self.radius, self.pos[1])
-                print("HEY")
             elif border.vert == True and border.tr == False and -1 < ((self.pos[0] + self.radius) - border.pos[0]) < 1 and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
                 self.xvel = 0
                 self.pos = (border.pos[0] - border.width - self.radius, self.pos[1])
-                print("HEY")
+
         #movement
         keys = pygame.key.get_pressed()
         if keys[self.keyleft]:
@@ -103,9 +102,12 @@ players = [Players(30, (1100, 475), (2, 148, 165),num = 0,keyup = pygame.K_UP,ke
     , Players(30, (800, 475), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a, keyright = pygame.K_d)]
 
 
-blocks = [Blocks(1900, 20, (0,930), (255,255,255)), Blocks(20, 950, (0,0), (255,255,255)), Blocks(20, 950, (1880,0), (255,255,255))]
+blocks = [Blocks(1900, 20, (0,930), (255,255,255)), Blocks(20, 950, (0,0), (255,255,255)), Blocks(20, 950, (1880,0), (255,255,255)), Blocks(800, 20, (550,630), (255,255,255))]
 
-borders = [Borders(1900,1,(0,931), False, True), Borders(1, 950, (19,0), True, True), Borders(1, 950, (1880,0), True, False)]
+borders = [Borders(1900,1,(0,931), False, True), Borders(1, 950, (19,0), True, True),
+           Borders(1, 950, (1880,0), True, False), Borders(800,1,(550,631), False, True),
+           Borders(1, 20, (1349,630), True, True), Borders(1, 20, (550,630), True, False),
+           Borders(800,1,(550,670), False, False)]
 running = True
 while running:
     
