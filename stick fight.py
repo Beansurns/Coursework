@@ -5,7 +5,7 @@ pygame.init()
 #setting variables
 s_width, s_height = 1900, 950
 screen = pygame.display.set_mode([s_width,s_height])
-g = 0.008
+g = 0.02
 ydrag = 0.8
 xdrag = 0.5
 drag = 0.6
@@ -83,14 +83,14 @@ class Players:
         #movement
         keys = pygame.key.get_pressed()
         if keys[self.keyleft]:
-            self.xacc += -0.5
+            self.xacc += -0.8
         if keys[self.keyright]:
-            self.xacc += 0.5
+            self.xacc += 0.8
         if keys[self.keyup] and self.ground:
-            self.yacc += -1.5
+            self.yacc += -1.3
             self.ground = False
         if keys[self.keydown]:
-            self.yacc += 0.01
+            self.yacc += 0.3
         self.draw()
     
     def draw(self):
