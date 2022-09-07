@@ -41,7 +41,8 @@ class Borders:
         
 
 class Players:
-    def __init__(self, radius=10, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None, keyleft = None, keyright = None, xvel=0, yvel=0, xacc=0, yacc=0, ):
+    def __init__(self, radius=10, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None,
+                 keyleft = None, keyright = None, xvel=0, yvel=0, xacc=0, yacc=0, ):
         self.radius = radius
         self.pos = pos
         self.colour = colour
@@ -68,16 +69,27 @@ class Players:
         self.pos = (self.pos[0]+self.xvel,self.pos[1]+self.yvel)
         #Collision detection between players and surfaces
         for border in borders:
-            if border.vert == False and border.tr == True and (self.pos[1] + self.radius) >= border.pos[1] and (self.pos[0] > border.pos[0] and self.pos[0] < (border.pos[0] + border.width)):
+            if border.pos[1] == 931 and -1 < (self.pos[1] + self.radius) - border.pos[1]:
+                self.pos = (self.pos[0], border.pos[1] - self.radius)
+                self.yvel = 0
+                self.ground = True
+            elif border.vert == False and border.tr == True and -1 < (self.pos[1] + self.radius) - border.pos[1] < 10 and \
+                    (self.pos[0] > border.pos[0] and self.pos[0] < (border.pos[0] + border.width)):
                 self.pos = (self.pos[0], border.pos[1]-self.radius)
                 self.yvel = 0
                 self.ground = True
-            elif border.vert == True and border.tr == True and -1 < ((self.pos[0] - self.radius) - border.pos[0]) < 1 and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
+            elif border.vert == True and border.tr == True and -1 < ((self.pos[0] - self.radius) - border.pos[0]) < 1 \
+                    and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
                 self.xvel = 0
                 self.pos = (border.pos[0] + border.width + self.radius, self.pos[1])
-            elif border.vert == True and border.tr == False and -1 < ((self.pos[0] + self.radius) - border.pos[0]) < 1 and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
+            elif border.vert == True and border.tr == False and -1 < ((self.pos[0] + self.radius) - border.pos[0]) < 1 \
+                    and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
                 self.xvel = 0
                 self.pos = (border.pos[0] - border.width - self.radius, self.pos[1])
+            elif border.vert == False and border.tr == False and -10 < (self.pos[1] - self.radius) - border.pos[1] < 1 and \
+                    (self.pos[0] > border.pos[0] and self.pos[0] < (border.pos[0] + border.width)):
+                self.pos = (self.pos[0], border.pos[1] + self.radius + border.height)
+                self.yvel = 0
 
         #movement
         keys = pygame.key.get_pressed()
@@ -98,16 +110,19 @@ class Players:
 
 
 #creating players and surfaces
-players = [Players(30, (1100, 475), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT)
-    , Players(30, (800, 475), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a, keyright = pygame.K_d)]
+players = [Players(30, (1100, 475), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,
+                   keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT)
+    , Players(30, (800, 475), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a,
+              keyright = pygame.K_d)]
 
 
-blocks = [Blocks(1900, 20, (0,930), (255,255,255)), Blocks(20, 950, (0,0), (255,255,255)), Blocks(20, 950, (1880,0), (255,255,255)), Blocks(800, 20, (550,630), (255,255,255))]
+blocks = [Blocks(1900, 20, (0,930), (255,255,255)), Blocks(20, 950, (0,0), (255,255,255)), Blocks(20, 950, (1880,0),
+                (255,255,255)), Blocks(800, 20, (550,630), (255,255,255))]
 
 borders = [Borders(1900,1,(0,931), False, True), Borders(1, 950, (19,0), True, True),
            Borders(1, 950, (1880,0), True, False), Borders(800,1,(550,631), False, True),
            Borders(1, 20, (1349,630), True, True), Borders(1, 20, (550,630), True, False),
-           Borders(800,1,(550,670), False, False)]
+           Borders(800,1,(550,650), False, False)]
 running = True
 while running:
     
