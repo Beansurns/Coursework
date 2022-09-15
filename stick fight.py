@@ -117,12 +117,14 @@ players = [Players(30, (1100, 475), (2, 148, 165),num = 0,keyup = pygame.K_UP,ke
 
 
 blocks = [Blocks(1900, 20, (0,930), (255,255,255)), Blocks(20, 950, (0,0), (255,255,255)), Blocks(20, 950, (1880,0),
-                (255,255,255)), Blocks(800, 20, (550,630), (255,255,255))]
+                (255,255,255)), Blocks(800, 20, (550,630), (255,255,255)), Blocks(400, 20, (750,330), (255,255,255))]
 
 borders = [Borders(1900,1,(0,931), False, True), Borders(1, 950, (19,0), True, True),
            Borders(1, 950, (1880,0), True, False), Borders(800,1,(550,631), False, True),
            Borders(1, 20, (1349,630), True, True), Borders(1, 20, (550,630), True, False),
-           Borders(800,1,(550,650), False, False)]
+           Borders(800,1,(550,650), False, False), Borders(400,1,(750,331), False, True),
+           Borders(1, 20, (1149,330), True, True), Borders(1, 20, (750,330), True, False),
+           Borders(800,1,(750,350), False, False)]
 running = True
 while running:
     
