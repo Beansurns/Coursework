@@ -1,11 +1,12 @@
 import pygame
+import time
 from random import randint as rand
 
 pygame.init()
 #setting variables
 s_width, s_height = 1900, 950
 screen = pygame.display.set_mode([s_width,s_height])
-g = 9.8
+g = 9800
 ydrag = 0.8
 xdrag = 0.5
 drag = 0.6
@@ -43,7 +44,7 @@ class Borders:
 
 class Players:
     def __init__(self, radius=10, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None,
-                 keyleft = None, keyright = None, xvel=0, yvel=0, xacc=0, yacc=0, ):
+                 keyleft = None, keyright = None, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0):
         self.radius = radius
         self.pos = pos
         self.colour = colour
@@ -57,8 +58,10 @@ class Players:
         self.keydown = keydown
         self.keyleft = keyleft
         self.keyright = keyright
+        self.last_jump = last_jump
 
     def update(self, dt):
+        self.ground = False
         self.yacc = self.yacc * ydrag
         self.yvel += (self.yacc + g)*dt
         self.xacc = self.xacc * xdrag
@@ -94,14 +97,14 @@ class Players:
         #movement
         keys = pygame.key.get_pressed()
         if keys[self.keyleft]:
-            self.xacc += -100
+            self.xacc += -100000
         if keys[self.keyright]:
-            self.xacc += 100
+            self.xacc += 100000
         if keys[self.keyup] and self.ground:
-            self.yacc += -0.3
+            self.yvel += -3000
             self.ground = False
         if keys[self.keydown]:
-            self.yacc += 0.1
+            self.yacc += 1000
         self.draw()
     
     def draw(self):
