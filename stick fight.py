@@ -81,11 +81,11 @@ class Players:
                 self.pos = (self.pos[0], border.pos[1]-self.radius)
                 self.yvel = 0
                 self.ground = True
-            elif border.vert and border.tr and -1 < ((self.pos[0] - self.radius) - border.pos[0]) < 1 \
+            elif border.vert and border.tr and -5 < ((self.pos[0] - self.radius) - border.pos[0]) < 1 \
                     and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
                 self.xvel = 0
                 self.pos = (border.pos[0] + border.width + self.radius, self.pos[1])
-            elif border.vert and not border.tr and -1 < ((self.pos[0] + self.radius) - border.pos[0]) < 1 \
+            elif border.vert and not border.tr and -1 < ((self.pos[0] + self.radius) - border.pos[0]) < 5 \
                     and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
                 self.xvel = 0
                 self.pos = (border.pos[0] - border.width - self.radius, self.pos[1])
@@ -111,6 +111,46 @@ class Players:
         #drawing the players in the game
         pygame.draw.circle(screen, self.colour, (int(self.pos[0]), int(self.pos[1])-1), self.radius)
 
+class Bullet:
+    def __init__(self, pl, xdir, ydir, bounces = 0, bounce_potential = 0, dmg = 10, radius = 10, xvel = 10, yvel = 10):
+        self.pl = pl
+        self.xdir = xdir
+        self.ydir = ydir
+        self.pos = (players[pl].pos[0],players[pl].pos[1])
+        self.bounces = bounces
+        self.bounce_potential = bounce_potential
+        self.dmg = dmg
+        self.radius = radius
+        self.xvel = xvel
+        self.yvel = yvel
+
+    def update(self, dt):
+        self.pos = (self.pos[0] + self.xvel*dt, self.pos[1]+self.yvel*dt)
+        for border in borders:
+            if border.pos[1] == 931 and -1 < (self.pos[1] + self.radius) - border.pos[1]:
+                self.bounces += 1
+                self.yvel *= -1
+            elif not border.vert and border.tr and -1 < (self.pos[1] + self.radius) - border.pos[1] < 10 and \
+                    (self.pos[0] > border.pos[0] and self.pos[0] < (border.pos[0] + border.width)):
+                self.bounces += 1
+                self.yvel *= -1
+            elif border.vert and border.tr and -5 < ((self.pos[0] - self.radius) - border.pos[0]) < 1 \
+                    and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
+                self.bounces += 1
+                self.xvel *= -1
+            elif border.vert and not border.tr and -1 < ((self.pos[0] + self.radius) - border.pos[0]) < 5 \
+                    and (self.pos[1] > border.pos[1] and self.pos[1] < (border.pos[1] + border.height)):
+                self.bounces += 1
+                self.xvel *= -1
+            elif not border.vert and not border.tr and -10 < (self.pos[1] - self.radius) - border.pos[1] < 1 and \
+                    (self.pos[0] > border.pos[0] and self.pos[0] < (border.pos[0] + border.width)):
+                self.bounces += 1
+                self.yvel *= -1
+        self.draw()
+
+    def draw(self):
+        pygame.draw.circle(screen, (255,255,255), (int(self.pos[0]), int(self.pos[1])), self.radius)
+
 
 #creating players and surfaces
 players = [Players(30, (1100, 475), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,
@@ -128,6 +168,8 @@ borders = [Borders(1900, 1, (0, 931), False, True), Borders(1, 950, (19, 0), Tru
            Borders(800, 1, (550, 650), False, False), Borders(400, 1, (750, 331), False, True),
            Borders(1, 20, (1149, 330), True, True), Borders(1, 20, (750, 330), True, False),
            Borders(400, 1, (750, 350), False, False), Borders(1900, 1, (0, 0), False, False)]
+bullets = []
+
 running = True
 while running:
     dt = clock.tick()/1000
@@ -141,8 +183,14 @@ while running:
         block.update(dt)
     for player in players:
         player.update(dt)
+    for bullet in bullets:
+        bullet.update(dt)
+        if bullet.bounces > bullet.bounce_potential:
+            bullets.remove(bullet)
     pygame.display.flip()
-
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        bullets.append(Bullet(1, 0, 0, 0, 10, 10, 10, 100, 100))
+        print("b")
             
             
 pygame.quit()
