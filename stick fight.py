@@ -104,7 +104,7 @@ class Players:
             self.yvel += -3000
             self.ground = False
         if keys[self.keydown]:
-            self.yacc += 1000
+            self.yacc += 10000
         self.draw()
     
     def draw(self):
@@ -125,7 +125,8 @@ class Bullet:
         self.yvel = yvel
 
     def update(self, dt):
-        self.pos = (self.pos[0] + self.xvel*dt, self.pos[1]+self.yvel*dt)
+        self.yvel += g/1000
+        self.pos = (self.pos[0] + self.xvel*dt, self.pos[1] + self.yvel*dt)
         for border in borders:
             if border.pos[1] == 931 and -1 < (self.pos[1] + self.radius) - border.pos[1]:
                 self.bounces += 1
@@ -189,8 +190,15 @@ while running:
             bullets.remove(bullet)
     pygame.display.flip()
     if event.type == pygame.MOUSEBUTTONDOWN:
-        bullets.append(Bullet(1, 0, 0, 0, 10, 10, 10, 100, 100))
-        print("b")
+        x, y = pygame.mouse.get_pos()
+        x -= players[0].pos[0]
+        y -= players[0].pos[1]
+        z = (x**2 + y**2)**(1/2)
+        x /= z
+        y /= z
+        bullets.append(Bullet(0, x, y, 0, 5, 10, 10, 1000*x, 1000*y))
+        print("a")
+
             
             
 pygame.quit()
