@@ -44,7 +44,7 @@ class Borders:
 
 class Players:
     def __init__(self, radius=10, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None,
-                 keyleft = None, keyright = None, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0):
+                 keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500):
         self.radius = radius
         self.pos = pos
         self.colour = colour
@@ -59,6 +59,9 @@ class Players:
         self.keyleft = keyleft
         self.keyright = keyright
         self.last_jump = last_jump
+        self.pl = pl
+        self.bullets = bullets
+        self.health = health
 
     def update(self, dt):
         self.ground = False
@@ -67,6 +70,9 @@ class Players:
         self.xacc = self.xacc * xdrag
         self.xvel += self.xacc*dt
         self.xvel = self.xvel * xvdrag
+        if self.health <= 0:
+            self.pos = (950,475)
+            self.health = 500
 
 
         self.pos = (self.pos[0]+(self.xvel * dt), self.pos[1]+(self.yvel * dt))
@@ -148,8 +154,9 @@ class Bullet:
                 self.bounces += 1
                 self.yvel *= -1
         for player in players:
-            if (self.pos[0]-player.pos[0])**2+(self.pos[1]-player.pos[1])**2 <= (self.radius+player.radius)**2:
+            if (self.pos[0]-player.pos[0])**2+(self.pos[1]-player.pos[1])**2 <= (self.radius+player.radius)**2 and self.pl != player.pl:
                 self.bounces = self.bounce_potential + 1
+                player.health -= 10
         self.draw()
 
     def draw(self):
@@ -158,9 +165,9 @@ class Bullet:
 
 #creating players and surfaces
 players = [Players(30, (1100, 475), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,
-                   keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT)
+                   keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT, pl = 0, bullets = 10)
     , Players(30, (800, 475), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a,
-              keyright = pygame.K_d)]
+              keyright = pygame.K_d, pl = 1, bullets = 10)]
 
 
 blocks = [Blocks(1900, 20, (0,930), (255,255,255)), Blocks(20, 950, (0,0), (255,255,255)), Blocks(20, 950, (1880,0),
@@ -192,14 +199,14 @@ while running:
         if bullet.bounces > bullet.bounce_potential:
             bullets.remove(bullet)
     pygame.display.flip()
-    if event.type == pygame.MOUSEBUTTONDOWN:
+    if event.type == pygame.MOUSEBUTTONDOWN and players[0].bullets > len(bullets):
         x, y = pygame.mouse.get_pos()
         x -= players[0].pos[0]
         y -= players[0].pos[1]
         z = (x**2 + y**2)**(1/2)
         x /= z
         y /= z
-        bullets.append(Bullet(0, x, y, 0, 0, 10, 10, 500*x, 500*y))
+        bullets.append(Bullet(0, x, y, 0, 0, 10, 10, 1000*x, 1000*y))
 
 
             
