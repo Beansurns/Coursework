@@ -1,11 +1,14 @@
+
 import pygame
 import time
 from random import randint as rand
 
 pygame.init()
 #setting variables
-s_width, s_height = 1900, 950
-screen = pygame.display.set_mode([s_width,s_height])
+#s_width, s_height = 1900, 950
+#screen = pygame.display.set_mode([s_width,s_height])
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+s_width, s_height = pygame.display.get_surface().get_size()
 g = 9800
 ydrag = 0.8
 xdrag = 0.5
@@ -71,14 +74,14 @@ class Players:
         self.xvel += self.xacc*dt
         self.xvel = self.xvel * xvdrag
         if self.health <= 0:
-            self.pos = (950,475)
+            self.pos = (s_width/2,s_height/2)
             self.health = 500
 
 
         self.pos = (self.pos[0]+(self.xvel * dt), self.pos[1]+(self.yvel * dt))
         #Collision detection between players and surfaces
         for border in borders:
-            if border.pos[1] == 931 and -1 < (self.pos[1] + self.radius) - border.pos[1]:
+            if border.pos[1] == s_height-20 and -1 < (self.pos[1] + self.radius) - border.pos[1]:
                 self.pos = (self.pos[0], border.pos[1] - self.radius)
                 self.yvel = 0
                 self.ground = True
@@ -164,17 +167,17 @@ class Bullet:
 
 
 #creating players and surfaces
-players = [Players(30, (1100, 475), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,
+players = [Players(30, (s_width*2/3, s_height/1.3), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,
                    keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT, pl = 0, bullets = 10)
-    , Players(30, (800, 475), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a,
+    , Players(30, (s_width/3, s_height/1.3), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a,
               keyright = pygame.K_d, pl = 1, bullets = 10)]
 
 
-blocks = [Blocks(1900, 20, (0,930), (255,255,255)), Blocks(20, 950, (0,0), (255,255,255)), Blocks(20, 950, (1880,0),
-                (255,255,255)), Blocks(800, 20, (550,630), (255,255,255)), Blocks(400, 20, (750,330), (255,255,255))]
+blocks = [Blocks(s_width, 20, (0,s_height-20), (255,255,255)), Blocks(20, s_height, (0,0), (255,255,255)), Blocks(20, s_height, (s_width-20,0),
+                (255,255,255)), Blocks(s_width*0.42, 20, (s_width/2-(s_width*0.42)/2,s_height/3), (255,255,255)), Blocks(s_width*0.2, 20, (s_width/2-(s_width*0.2)/2,s_height*0.18), (255,255,255))]
 
-borders = [Borders(1900, 1, (0, 931), False, True), Borders(1, 950, (19, 0), True, True),
-           Borders(1, 950, (1880, 0), True, False), Borders(800, 1, (550, 631), False, True),
+borders = [Borders(s_width, 1, (0,s_height-20), False, True), Borders(1, s_height, (19, 0), True, True),
+           Borders(1, s_height, (s_width-20, 0), True, False), Borders(s_width*0.42, 1, (s_width/2-(s_width*0.42)/2,s_height/3+1), False, True),
            Borders(1, 20, (1349, 630), True, True), Borders(1, 20, (550, 630), True, False),
            Borders(800, 1, (550, 650), False, False), Borders(400, 1, (750, 331), False, True),
            Borders(1, 20, (1149, 330), True, True), Borders(1, 20, (750, 330), True, False),
@@ -185,8 +188,8 @@ running = True
 while running:
     dt = clock.tick()/1000
     for event in pygame.event.get():
-        
-        if event.type == pygame.QUIT:
+        keys = pygame.key.get_pressed()
+        if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
             running = False
 
     screen.fill((43, 45, 47))
