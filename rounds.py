@@ -13,8 +13,12 @@ g = 9800
 ydrag = 0.8
 xdrag = 0.5
 drag = 0.6
-xvdrag = 0.1/0.13
+#xvdrag = 0.1/0.13
+xvdrag = 1
 clock = pygame.time.Clock()
+pygame.joystick.init()
+joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
+
 
 class Blocks:
     def __init__(self, width=10, height=10, pos=(1900,0), colour=(255,255,255)):
@@ -25,7 +29,7 @@ class Blocks:
         
     def update(self, dt):
         self.draw()
-        
+
     def draw(self):
         #drawing the surfaces in the game
         pygame.draw.rect(screen, self.colour, pygame.Rect(int(self.pos[0]), int(self.pos[1]), self.width, self.height))
@@ -76,6 +80,8 @@ class Players:
         if self.health <= 0:
             self.pos = (s_width/2,s_height/2)
             self.health = 500
+            
+
 
 
         self.pos = (self.pos[0]+(self.xvel * dt), self.pos[1]+(self.yvel * dt))
@@ -103,17 +109,8 @@ class Players:
                 self.pos = (self.pos[0], border.pos[1] + self.radius + border.height)
                 self.yvel = 0
 
-        #movement
-        keys = pygame.key.get_pressed()
-        if keys[self.keyleft]:
-            self.xacc += -100000
-        if keys[self.keyright]:
-            self.xacc += 100000
-        if keys[self.keyup] and self.ground:
-            self.yvel += -3000
-            self.ground = False
-        if keys[self.keydown]:
-            self.yacc += 10000
+
+
         self.draw()
     
     def draw(self):
@@ -173,15 +170,27 @@ players = [Players(30, (s_width*2/3, s_height/1.3), (2, 148, 165),num = 0,keyup 
               keyright = pygame.K_d, pl = 1, bullets = 10)]
 
 
-blocks = [Blocks(s_width, 20, (0,s_height-20), (255,255,255)), Blocks(20, s_height, (0,0), (255,255,255)), Blocks(20, s_height, (s_width-20,0),
-                (255,255,255)), Blocks(s_width*0.42, 20, (s_width/2-(s_width*0.42)/2,s_height/3), (255,255,255)), Blocks(s_width*0.2, 20, (s_width/2-(s_width*0.2)/2,s_height*0.18), (255,255,255))]
 
-borders = [Borders(s_width, 1, (0,s_height-20), False, True), Borders(1, s_height, (19, 0), True, True),
-           Borders(1, s_height, (s_width-20, 0), True, False), Borders(s_width*0.42, 1, (s_width/2-(s_width*0.42)/2,s_height/3+1), False, True),
-           Borders(1, 20, (1349, 630), True, True), Borders(1, 20, (550, 630), True, False),
-           Borders(800, 1, (550, 650), False, False), Borders(400, 1, (750, 331), False, True),
-           Borders(1, 20, (1149, 330), True, True), Borders(1, 20, (750, 330), True, False),
-           Borders(400, 1, (750, 350), False, False), Borders(1900, 1, (0, 0), False, False)]
+blocks = []
+borders = []
+
+def block_and_border(width, height, x, y):
+    blocks.append(Blocks(width, height, (x, y), (255, 255, 255)))
+    borders.append(Borders(width, 1, (x, y), False, True))
+    borders.append(Borders(width, 1, (x, y+height), False, False))
+    borders.append(Borders(1, height, (x, y), True, False))
+    borders.append(Borders(1, height, (x+width, y), True, True))
+
+
+
+block_and_border(s_width, 20, 0, s_height-20)
+block_and_border(20, s_height, 0, 0)
+block_and_border(20, s_height, s_width-20, 0)
+block_and_border(s_width, 20, 0, 0)
+block_and_border(s_width*0.5, 20, s_width*0.25, s_height*0.62)
+block_and_border(s_width*0.25, 20, s_width*0.375, s_height*0.3)
+
+
 bullets = []
 
 running = True
@@ -191,6 +200,21 @@ while running:
         keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
             running = False
+        if event.type == pygame.JOYBUTTONDOWN:
+            if event.button == 0 and players[event.instance_id].ground:
+                players[event.instance_id].yvel += -3000
+                players[event.instance_id].ground = False
+            if event.button == 12:
+                players[event.instance_id].yacc += 10000
+
+        if event.type == pygame.JOYAXISMOTION:
+            pl_id = event.instance_id
+            if event.axis == 0:
+                if event.value > 0.1 or event.value < -0.1:
+                    players[pl_id].xvel = 1000*event.value
+                else:
+                    players[pl_id].xvel = 0
+
 
     screen.fill((43, 45, 47))
     for block in blocks:
@@ -202,14 +226,11 @@ while running:
         if bullet.bounces > bullet.bounce_potential:
             bullets.remove(bullet)
     pygame.display.flip()
-    if event.type == pygame.MOUSEBUTTONDOWN and players[0].bullets > len(bullets):
-        x, y = pygame.mouse.get_pos()
-        x -= players[0].pos[0]
-        y -= players[0].pos[1]
-        z = (x**2 + y**2)**(1/2)
-        x /= z
-        y /= z
-        bullets.append(Bullet(0, x, y, 0, 0, 10, 10, 1000*x, 1000*y))
+    for player in players:
+        if event.type == pygame.JOYAXISMOTION and event.axis == 5 and player.bullets > len(bullets):
+            pl_id = event.instance_id
+            x, y = joysticks[pl_id].get_axis(2), joysticks[pl_id].get_axis(3)
+            bullets.append(Bullet(pl_id, x, y, 0, 0, 10, 10, 2000*x, 2000*y))
 
 
             
