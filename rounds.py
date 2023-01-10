@@ -51,7 +51,7 @@ class Borders:
 
 class Players:
     def __init__(self, radius=10, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None,
-                 keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500):
+                 keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500, deaths = 0):
         self.radius = radius
         self.pos = pos
         self.colour = colour
@@ -69,6 +69,7 @@ class Players:
         self.pl = pl
         self.bullets = bullets
         self.health = health
+        self.deaths = deaths
 
     def update(self, dt):
         self.ground = False
@@ -80,7 +81,8 @@ class Players:
         if self.health <= 0:
             self.pos = (s_width/2,s_height/2)
             self.health = 500
-            
+            self.deaths += 1
+
 
 
 
@@ -108,6 +110,17 @@ class Players:
                     (self.pos[0] > border.pos[0] and self.pos[0] < (border.pos[0] + border.width)):
                 self.pos = (self.pos[0], border.pos[1] + self.radius + border.height)
                 self.yvel = 0
+
+        if self.deaths == 5:
+            for t in range(1000):
+                screen.fill((138, 40, 33))
+                pygame.display.flip()
+            self.deaths = 0
+            players[-1*(self.num-1)].health = 500
+            self.pos = (s_width*2/3, s_height/1.3)
+            players[-1 * (self.num - 1)].pos = (s_width/3, s_height/1.3)
+
+
 
 
 
