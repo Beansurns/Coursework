@@ -9,7 +9,7 @@ pygame.init()
 #screen = pygame.display.set_mode([s_width,s_height])
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 s_width, s_height = pygame.display.get_surface().get_size()
-g = 9800
+g = 9.8
 ydrag = 0.8
 xdrag = 0.5
 drag = 0.6
@@ -32,7 +32,7 @@ class Blocks:
 
     def draw(self):
         #drawing the surfaces in the game
-        pygame.draw.rect(screen, self.colour, pygame.Rect(int(self.pos[0]), int(self.pos[1]), self.width, self.height))
+        pygame.draw.rect(screen, self.colour, pygame.Rect(int(self.pos[0]), int(self.pos[1]), int(self.width), int(self.height)))
 
 class Borders:
     def __init__(self, width=10, height=1, pos=(1900, 0), vert=True, tr=True):
@@ -73,11 +73,11 @@ class Players:
 
     def update(self, dt):
         self.ground = False
-        self.yacc = self.yacc * ydrag
-        self.yvel += (self.yacc + g)*dt
-        self.xacc = self.xacc * xdrag
-        self.xvel += self.xacc*dt
-        self.xvel = self.xvel * xvdrag
+        self.yacc = self.yacc * ydrag * dt
+        self.yvel += (self.yacc + g) * dt
+        self.xacc = self.xacc * xdrag * dt
+        self.xvel += self.xacc * dt
+        self.xvel = self.xvel * xvdrag * dt
         if self.health <= 0:
             self.pos = (s_width/2,s_height/2)
             self.health = 500
@@ -144,7 +144,7 @@ class Bullet:
         self.yvel = yvel
 
     def update(self, dt):
-        self.yvel += g/1000
+        self.yvel += g
         self.pos = (self.pos[0] + self.xvel*dt, self.pos[1] + self.yvel*dt)
         for border in borders:
             if border.pos[1] == 931 and -1 < (self.pos[1] + self.radius) - border.pos[1]:
@@ -208,7 +208,7 @@ bullets = []
 
 running = True
 while running:
-    dt = clock.tick()/1000
+    dt = clock.tick()/100
     for event in pygame.event.get():
         keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
