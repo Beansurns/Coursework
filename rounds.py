@@ -73,11 +73,11 @@ class Players:
 
     def update(self, dt):
         self.ground = False
-        self.yacc = self.yacc * ydrag * dt
-        self.yvel += (self.yacc + g) * dt
+        self.yacc = self.yacc * ydrag
+        self.yvel += (self.yacc + g)
         self.xacc = self.xacc * xdrag * dt
         self.xvel += self.xacc * dt
-        self.xvel = self.xvel * xvdrag * dt
+        self.xvel = self.xvel * xvdrag
         if self.health <= 0:
             self.pos = (s_width/2,s_height/2)
             self.health = 500
@@ -208,7 +208,7 @@ bullets = []
 
 running = True
 while running:
-    dt = clock.tick()/100
+    dt = clock.tick()/1000
     for event in pygame.event.get():
         keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
