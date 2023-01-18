@@ -117,6 +117,7 @@ class Players:
                 screen.fill((138, 40, 33))
                 pygame.display.flip()
             self.deaths = 0
+            players[-1*(self.num-1)].deaths = 0
             players[-1*(self.num-1)].health = 500
             self.pos = (s_width*2/3, s_height/1.3)
             players[-1 * (self.num - 1)].pos = (s_width/3, s_height/1.3)
