@@ -19,7 +19,6 @@ clock = pygame.time.Clock()
 pygame.joystick.init()
 joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
 
-
 class Blocks:
     def __init__(self, width=10, height=10, pos=(1900,0), colour=(255,255,255)):
         self.width = width
@@ -51,7 +50,7 @@ class Borders:
 
 class Players:
     def __init__(self, radius=10, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None,
-                 keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500, deaths = 0, guid = 0):
+                 keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500, deaths = 0, guid = 0, image = None):
         self.radius = radius
         self.pos = pos
         self.colour = colour
@@ -71,6 +70,9 @@ class Players:
         self.health = health
         self.deaths = deaths
         self.guid = guid
+        self.image = image
+        self.image = pygame.transform.scale(image,(int(image.get_width()* 0.2), int(image.get_height()*0.2)))
+
 
     def update(self, dt):
         self.ground = False
@@ -130,7 +132,8 @@ class Players:
     
     def draw(self):
         #drawing the players in the game
-        pygame.draw.circle(screen, self.colour, (int(self.pos[0]), int(self.pos[1])-1), self.radius)
+        #pygame.draw.circle(screen, self.colour, (int(self.pos[0]), int(self.pos[1])-1), self.radius)
+        screen.blit(self.image,(int(self.pos[0]), int(self.pos[1]-1)-self.image.get_height()/2))
 
 class Bullet:
     def __init__(self, pl, xdir, ydir, bounces = 0, bounce_potential = 0, dmg = 10, radius = 10, xvel = 10, yvel = 10):
@@ -180,17 +183,17 @@ class Bullet:
 
 #creating players and surfaces
 players = [Players(30, (s_width*2/3, s_height/1.3), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,
-                   keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT, pl = 0, bullets = 10)
+                   keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT, pl = 0, bullets = 10, image = pygame.image.load("Kirby.png").convert_alpha())
     , Players(30, (s_width/3, s_height/1.3), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a,
-              keyright = pygame.K_d, pl = 1, bullets = 10)]
+              keyright = pygame.K_d, pl = 1, bullets = 10, image = pygame.image.load("Kirby.png").convert_alpha())]
 
 
 
 blocks = []
 borders = []
 
-players[0].guid = joysticks[0].get_guid()
-players[1].guid = joysticks[1].get_guid()
+#players[0].guid = joysticks[0].get_guid()
+#players[1].guid = joysticks[1].get_guid()
 def block_and_border(width, height, x, y):
     blocks.append(Blocks(width, height, (x, y), (255, 255, 255)))
     borders.append(Borders(width, 1, (x, y), False, True))
