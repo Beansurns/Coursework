@@ -71,7 +71,7 @@ class Players:
         self.deaths = deaths
         self.guid = guid
         self.image = image
-        self.image = pygame.transform.scale(image,(int(image.get_width()* 0.2), int(image.get_height()*0.2)))
+        self.image = pygame.transform.scale(image,(int(image.get_width()* 0.25), int(image.get_height()*0.25)))
 
 
     def update(self, dt):
@@ -133,7 +133,7 @@ class Players:
     def draw(self):
         #drawing the players in the game
         #pygame.draw.circle(screen, self.colour, (int(self.pos[0]), int(self.pos[1])-1), self.radius)
-        screen.blit(self.image,(int(self.pos[0]), int(self.pos[1]-1)-self.image.get_height()/2))
+        screen.blit(self.image,(int(self.pos[0]), int(self.pos[1]-self.image.get_height()/1.7)))
 
 class Bullet:
     def __init__(self, pl, xdir, ydir, bounces = 0, bounce_potential = 0, dmg = 10, radius = 10, xvel = 10, yvel = 10):
@@ -183,9 +183,9 @@ class Bullet:
 
 #creating players and surfaces
 players = [Players(30, (s_width*2/3, s_height/1.3), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,
-                   keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT, pl = 0, bullets = 10, image = pygame.image.load("Kirby.png").convert_alpha())
+                   keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT, pl = 0, bullets = 10, image = pygame.image.load("kirby_two.png"))
     , Players(30, (s_width/3, s_height/1.3), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a,
-              keyright = pygame.K_d, pl = 1, bullets = 10, image = pygame.image.load("Kirby.png").convert_alpha())]
+              keyright = pygame.K_d, pl = 1, bullets = 10, image = pygame.image.load("kirby.png"))]
 
 
 
