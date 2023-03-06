@@ -71,7 +71,8 @@ class Players:
         self.deaths = deaths
         self.guid = guid
         self.image = image
-        self.image = pygame.transform.scale(image,(int(image.get_width()* 0.25), int(image.get_height()*0.25)))
+        self.direction = 1
+        self.image = pygame.transform.scale(image,(int(image.get_width()* 0.25) * self.direction, int(image.get_height()*0.25)))
 
 
     def update(self, dt):
@@ -192,8 +193,8 @@ players = [Players(30, (s_width*2/3, s_height/1.3), (2, 148, 165),num = 0,keyup 
 blocks = []
 borders = []
 
-#players[0].guid = joysticks[0].get_guid()
-#players[1].guid = joysticks[1].get_guid()
+players[0].guid = joysticks[0].get_guid()
+players[1].guid = joysticks[1].get_guid()
 def block_and_border(width, height, x, y):
     blocks.append(Blocks(width, height, (x, y), (255, 255, 255)))
     borders.append(Borders(width, 1, (x, y), False, True))
@@ -232,6 +233,7 @@ while running:
                 players[pl_id].yacc += 10000
 
         if event.type == pygame.JOYAXISMOTION:
+            print(dir(event))
             if event.guid == players[0].guid:
                 pl_id = 0
             elif event.guid == players[1].guid:
@@ -239,6 +241,14 @@ while running:
             if event.axis == 0:
                 if event.value > 0.1 or event.value < -0.1:
                     players[pl_id].xvel = 1000*event.value
+                    if event.value > 0 and pl_id == 0:
+                        players[pl_id].direction = 1
+                    if event.value < 0 and pl_id == 0:
+                        players[pl_id].direction = -1
+                    if event.value > 0 and pl_id == 1:
+                        players[pl_id].direction = 1
+                    if event.value < 0 and pl_id == 1:
+                        players[pl_id].direction = -1
                 else:
                     players[pl_id].xvel = 0
 
