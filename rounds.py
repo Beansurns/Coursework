@@ -19,6 +19,7 @@ clock = pygame.time.Clock()
 pygame.joystick.init()
 joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
 
+
 class Blocks:
     def __init__(self, width=10, height=10, pos=(1900,0), colour=(255,255,255)):
         self.width = width
@@ -73,6 +74,7 @@ class Players:
         self.image = image
         self.direction = 1
         self.image = pygame.transform.scale(image,(int(image.get_width()* 0.25) * self.direction, int(image.get_height()*0.25)))
+
 
 
     def update(self, dt):
@@ -193,8 +195,8 @@ players = [Players(30, (s_width*2/3, s_height/1.3), (2, 148, 165),num = 0,keyup 
 blocks = []
 borders = []
 
-players[0].guid = joysticks[0].get_guid()
-players[1].guid = joysticks[1].get_guid()
+#players[0].guid = joysticks[0].get_id()
+#players[1].guid = joysticks[1].get_id()
 def block_and_border(width, height, x, y):
     blocks.append(Blocks(width, height, (x, y), (255, 255, 255)))
     borders.append(Borders(width, 1, (x, y), False, True))
@@ -222,9 +224,9 @@ while running:
         if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
             running = False
         if event.type == pygame.JOYBUTTONDOWN:
-            if event.guid == players[0].guid:
+            if event.instance_id == players[0].guid:
                 pl_id = 0
-            elif event.guid == players[1].guid:
+            elif event.instance_id == players[1].guid:
                 pl_id = 1
             if event.button == 0 and players[pl_id].ground:
                 players[pl_id].yvel += -3000
@@ -233,22 +235,18 @@ while running:
                 players[pl_id].yacc += 10000
 
         if event.type == pygame.JOYAXISMOTION:
-            print(dir(event))
-            if event.guid == players[0].guid:
+            if event.instance_id == players[0].guid:
                 pl_id = 0
-            elif event.guid == players[1].guid:
+            elif event.instance_id == players[1].guid:
                 pl_id = 1
             if event.axis == 0:
                 if event.value > 0.1 or event.value < -0.1:
                     players[pl_id].xvel = 1000*event.value
-                    if event.value > 0 and pl_id == 0:
-                        players[pl_id].direction = 1
-                    if event.value < 0 and pl_id == 0:
-                        players[pl_id].direction = -1
-                    if event.value > 0 and pl_id == 1:
-                        players[pl_id].direction = 1
-                    if event.value < 0 and pl_id == 1:
-                        players[pl_id].direction = -1
+                    if event.value > 0:
+                        pygame.transform.flip(players[pl_id].image, True, False)
+                    if event.value < 0:
+                        pygame.transform.flip(players[pl_id].image, True, False)
+
                 else:
                     players[pl_id].xvel = 0
 
@@ -265,12 +263,13 @@ while running:
     pygame.display.flip()
     for player in players:
         if event.type == pygame.JOYAXISMOTION and event.axis == 5 and player.bullets > len(bullets):
-            if event.guid == players[0].guid:
+            if event.instance_id == players[0].guid:
                 pl_id = 0
-            elif event.guid == players[1].guid:
+            elif event.instance_id == players[1].guid:
                 pl_id = 1
             x, y = joysticks[pl_id].get_axis(2), joysticks[pl_id].get_axis(3)
             bullets.append(Bullet(pl_id, x, y, 0, 0, 10, 10, 2000*x, 2000*y))
+
 
 
             
