@@ -9,7 +9,7 @@ pygame.init()
 #screen = pygame.display.set_mode([s_width,s_height])
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 s_width, s_height = pygame.display.get_surface().get_size()
-g = 9.8
+g = 9.8*4
 ydrag = 0.8
 xdrag = 0.5
 drag = 0.6
@@ -18,21 +18,27 @@ xvdrag = 1
 clock = pygame.time.Clock()
 pygame.joystick.init()
 joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
+k_t = pygame.image.load("kirby.png")
+k = pygame.image.load("kirby_two_.png")
+k_t_f = pygame.image.load("kirby_flip.png")
+k_f = pygame.image.load("kirby_two_flip.png")
+radius = 40
+
 
 
 class Blocks:
-    def __init__(self, width=10, height=10, pos=(1900,0), colour=(255,255,255)):
+    def __init__(self, width=10, height=10, pos=(1900,0), image = None):
         self.width = width
         self.height = height
         self.pos = pos
-        self.colour = colour
+        self.image = pygame.transform.scale(image, (int(self.width), int(self.height)))
         
     def update(self, dt):
         self.draw()
 
     def draw(self):
         #drawing the surfaces in the game
-        pygame.draw.rect(screen, self.colour, pygame.Rect(int(self.pos[0]), int(self.pos[1]), int(self.width), int(self.height)))
+        screen.blit(self.image,(self.pos[0], self.pos[1]))
 
 class Borders:
     def __init__(self, width=10, height=1, pos=(1900, 0), vert=True, tr=True):
@@ -50,7 +56,7 @@ class Borders:
         
 
 class Players:
-    def __init__(self, radius=10, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None,
+    def __init__(self, radius=70, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None,
                  keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500, deaths = 0, guid = 0, image = None):
         self.radius = radius
         self.pos = pos
@@ -71,9 +77,7 @@ class Players:
         self.health = health
         self.deaths = deaths
         self.guid = guid
-        self.image = image
-        self.direction = 1
-        self.image = pygame.transform.scale(image,(int(image.get_width()* 0.25) * self.direction, int(image.get_height()*0.25)))
+        self.image = pygame.transform.scale(image,(int(self.radius * 2), int(self.radius *2)))
 
 
 
@@ -93,6 +97,8 @@ class Players:
 
 
         self.pos = (self.pos[0]+(self.xvel * dt), self.pos[1]+(self.yvel * dt))
+        if self.pos[1] > s_height-20:
+            self.pos = (self.pos[0], s_height - self.radius - 40)
         #Collision detection between players and surfaces
         for border in borders:
             if border.pos[1] == s_height-20 and -1 < (self.pos[1] + self.radius) - border.pos[1]:
@@ -136,7 +142,7 @@ class Players:
     def draw(self):
         #drawing the players in the game
         #pygame.draw.circle(screen, self.colour, (int(self.pos[0]), int(self.pos[1])-1), self.radius)
-        screen.blit(self.image,(int(self.pos[0]), int(self.pos[1]-self.image.get_height()/1.7)))
+        screen.blit(self.image,(int(self.pos[0]-self.radius), int(self.pos[1]-self.radius+5)))
 
 class Bullet:
     def __init__(self, pl, xdir, ydir, bounces = 0, bounce_potential = 0, dmg = 10, radius = 10, xvel = 10, yvel = 10):
@@ -185,9 +191,9 @@ class Bullet:
 
 
 #creating players and surfaces
-players = [Players(30, (s_width*2/3, s_height/1.3), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,
-                   keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT, pl = 0, bullets = 10, image = pygame.image.load("kirby_two.png"))
-    , Players(30, (s_width/3, s_height/1.3), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a,
+players = [Players(radius, (s_width*2/3, s_height/1.3), (2, 148, 165),num = 0,keyup = pygame.K_UP,keydown = pygame.K_DOWN,
+                   keyleft = pygame.K_LEFT, keyright = pygame.K_RIGHT, pl = 0, bullets = 10, image = pygame.image.load("kirby_two_.png"))
+    , Players(radius, (s_width/3, s_height/1.3), (193, 64, 61),num = 1,keyup = pygame.K_w,keydown = pygame.K_s,keyleft = pygame.K_a,
               keyright = pygame.K_d, pl = 1, bullets = 10, image = pygame.image.load("kirby.png"))]
 
 
@@ -195,10 +201,12 @@ players = [Players(30, (s_width*2/3, s_height/1.3), (2, 148, 165),num = 0,keyup 
 blocks = []
 borders = []
 
-#players[0].guid = joysticks[0].get_id()
-#players[1].guid = joysticks[1].get_id()
-def block_and_border(width, height, x, y):
-    blocks.append(Blocks(width, height, (x, y), (255, 255, 255)))
+players[0].guid = joysticks[0].get_id()
+players[1].guid = joysticks[1].get_id()
+
+
+def block_and_border(width, height, x, y, image):
+    blocks.append(Blocks(width, height, (x, y), image))
     borders.append(Borders(width, 1, (x, y), False, True))
     borders.append(Borders(width, 1, (x, y+height), False, False))
     borders.append(Borders(1, height, (x, y), True, False))
@@ -206,12 +214,18 @@ def block_and_border(width, height, x, y):
 
 
 
-block_and_border(s_width, 20, 0, s_height-20)
-block_and_border(20, s_height, 0, 0)
-block_and_border(20, s_height, s_width-20, 0)
-block_and_border(s_width, 20, 0, 0)
-block_and_border(s_width*0.5, 20, s_width*0.25, s_height*0.62)
-block_and_border(s_width*0.25, 20, s_width*0.375, s_height*0.3)
+block_and_border(s_width, 40, 0, s_height-40, pygame.image.load("wall.png"))
+block_and_border(40, s_height, 0, 0, pygame.image.load("wall.png"))
+block_and_border(40, s_height, s_width-40, 0, pygame.image.load("wall.png"))
+block_and_border(s_width, 40, 0, 0, pygame.image.load("wall.png"))
+block_and_border(s_width*0.35, 40, s_width*0.25, s_height*0.62, pygame.image.load("platform.png"))
+block_and_border(s_width*0.2, 40, s_width*0.65, s_height*0.3, pygame.image.load("platform.png"))
+block_and_border(s_width*0.17, s_width*0.17, s_width*0.83, s_height-s_width*0.17, pygame.image.load("wall_2.png"))
+block_and_border(40, s_height*0.25, s_width*0.27, s_height*0.15, pygame.image.load("wall.png"))
+block_and_border(40, s_height*0.3, s_width*0.17, s_height-s_width*0.17, pygame.image.load("wall.png"))
+block_and_border(s_height*0.3, 40, s_width*0.17-s_height*0.3, s_width*0.17, pygame.image.load("wall.png"))
+block_and_border(s_height*0.3, 40, s_width*0.27, s_height*0.275-20, pygame.image.load("wall.png"))
+
 
 
 bullets = []
@@ -229,10 +243,10 @@ while running:
             elif event.instance_id == players[1].guid:
                 pl_id = 1
             if event.button == 0 and players[pl_id].ground:
-                players[pl_id].yvel += -3000
+                players[pl_id].yvel += -2000
                 players[pl_id].ground = False
             if event.button == 12:
-                players[pl_id].yacc += 10000
+                players[pl_id].yacc += 600
 
         if event.type == pygame.JOYAXISMOTION:
             if event.instance_id == players[0].guid:
@@ -242,10 +256,14 @@ while running:
             if event.axis == 0:
                 if event.value > 0.1 or event.value < -0.1:
                     players[pl_id].xvel = 1000*event.value
-                    if event.value > 0:
-                        pygame.transform.flip(players[pl_id].image, True, False)
-                    if event.value < 0:
-                        pygame.transform.flip(players[pl_id].image, True, False)
+                    if event.value > 0 and pl_id == 0:
+                        players[pl_id].image = pygame.transform.scale(k,(2*radius, 2*radius))
+                    elif event.value < 0 and pl_id == 0:
+                        players[pl_id].image = pygame.transform.scale(k_f,(2*radius, 2*radius))
+                    elif event.value < 0 and pl_id == 1:
+                        players[pl_id].image = pygame.transform.scale(k_t_f,(2*radius, 2*radius))
+                    elif event.value > 0 and pl_id == 1:
+                        players[pl_id].image = pygame.transform.scale(k_t,(2*radius, 2*radius))
 
                 else:
                     players[pl_id].xvel = 0
