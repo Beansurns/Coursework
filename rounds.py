@@ -25,6 +25,53 @@ k_f = pygame.image.load("kirby_two_flip.png")
 radius = 40
 
 
+plus_mag = {"name" : "Bigger Mags",
+            "power" : 5,
+            "mag" : 1,
+            "dmg" : 0,
+            "hlth" : 0}
+plus_dmg = {"name" : "Plus Damage",
+            "power" : 8,
+            "mag" : 0,
+            "dmg" : 1,
+            "hlth" : 0}
+plus_hlth = {"name" : "Bigger Heart",
+            "power" : 7,
+            "mag" : 0,
+            "dmg" : 0,
+            "hlth" : 1}
+plus_rad = {"name" : "Bigger Bullets",
+            "power" : 4,
+            "mag" : 0,
+            "dmg" : 0,
+            "hlth" : 0}
+plus_plus_dmg = {"name" : "Super Damage",
+            "power" : 10,
+            "mag" : -1,
+            "dmg" : 1,
+            "hlth" : 0}
+no_mag = {"name" : "Infinitely Big Mags",
+            "power" : 8,
+            "mag" : 1,
+            "dmg" : -1,
+            "hlth" : 0}
+plus_size = {"name" : "Size Up",
+            "power" : 5,
+            "mag" : 0,
+            "dmg" : 0,
+            "hlth" : 1}
+less_size = {"name" : "Size Down",
+            "power" : 5,
+            "mag" : 0,
+            "dmg" : 0,
+            "hlth" : -1}
+plus_life = {"name" : "Extra Life",
+            "power" : 10,
+            "mag" : 0,
+            "dmg" : 0,
+            "hlth" : 1}
+pwr_names = [plus_mag, plus_dmg, plus_hlth, plus_rad, plus_plus_dmg, no_mag, plus_size, less_size, plus_life]
+
 
 class Blocks:
     def __init__(self, width=10, height=10, pos=(1900,0), image = None):
@@ -57,7 +104,7 @@ class Borders:
 
 class Players:
     def __init__(self, radius=70, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None,
-                 keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500, deaths = 0, guid = 0, image = None):
+                 keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500, deaths = 0, guid = 0, image = None, shot=0, powerups = []):
         self.radius = radius
         self.pos = pos
         self.colour = colour
@@ -78,6 +125,8 @@ class Players:
         self.deaths = deaths
         self.guid = guid
         self.image = pygame.transform.scale(image,(int(self.radius * 2), int(self.radius *2)))
+        self.shot = shot
+        self.powerups = powerups
 
 
 
@@ -89,9 +138,13 @@ class Players:
         self.xvel += self.xacc * dt
         self.xvel = self.xvel * xvdrag
         if self.health <= 0:
-            self.pos = (s_width/2,s_height/2)
             self.health = 500
+            players[-1 * (self.num - 1)].health = 500
             self.deaths += 1
+            self.shot = 0
+            players[-1 * (self.num - 1)].shot = 0
+            self.pos = (s_width * 2 / 3, s_height / 1.3)
+            players[-1 * (self.num - 1)].pos = (s_width / 3, s_height / 1.3)
 
 
 
@@ -128,6 +181,8 @@ class Players:
                 screen.fill((138, 40, 33))
                 pygame.display.flip()
             self.deaths = 0
+            self.shot = 0
+            players[-1 * (self.num - 1)].shot = 0
             players[-1*(self.num-1)].deaths = 0
             players[-1*(self.num-1)].health = 500
             self.pos = (s_width*2/3, s_height/1.3)
@@ -287,6 +342,8 @@ while running:
                 pl_id = 1
             x, y = joysticks[pl_id].get_axis(2), joysticks[pl_id].get_axis(3)
             bullets.append(Bullet(pl_id, x, y, 0, 0, 10, 10, 2000*x, 2000*y))
+            players[pl_id].shot += 1
+            print(players[pl_id].shot)
 
 
 
