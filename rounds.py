@@ -5,10 +5,11 @@ from random import randint as rand
 
 pygame.init()
 #setting variables
-#s_width, s_height = 1900, 950
-#screen = pygame.display.set_mode([s_width,s_height])
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-s_width, s_height = pygame.display.get_surface().get_size()
+s_width, s_height = 1920, 1080
+screen = pygame.display.set_mode([s_width,s_height])
+#screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+#s_width, s_height = pygame.display.get_surface().get_size()
+print(s_width, s_height)
 g = 9.8*4
 ydrag = 0.8
 xdrag = 0.5
@@ -118,21 +119,16 @@ def powerup_selection(shot, deaths, opp_deaths, opp_health, opp_shot, player_num
     while c == a:
         c = rand(0, len(possible_powerups)-1)
     final_powerups = [possible_powerups[a], possible_powerups[b], possible_powerups[c]]
-    print(f"Press 1 for {final_powerups[0]}\n"
-          f"Press 2 for {final_powerups[1]}\n"
-          f"Press 3 for {final_powerups[2]}\n")
-    keys = pygame.key.get_pressed()
-    picked = False
-    while not picked:
-        if keys[pygame.K_1]:
-            players[player_num].powerups.append(final_powerups[0])
-            picked = True
-        elif keys[pygame.K_2]:
-            players[player_num].powerups.append(final_powerups[1])
-            picked = True
-        elif keys[pygame.K_2]:
-            players[player_num].powerups.append(final_powerups[2])
-            picked = True
+    print(f"Enter 1 for {final_powerups[0]}\n"
+          f"Enter 2 for {final_powerups[1]}\n"
+          f"Enter 3 for {final_powerups[2]}\n")
+    picked = input("Which powerup would you like?")
+    if picked == "1":
+        players[player_num].powerups.append(final_powerups[0])
+    elif picked == "2":
+        players[player_num].powerups.append(final_powerups[1])
+    elif picked == "3":
+        players[player_num].powerups.append(final_powerups[2])
 
 
 
