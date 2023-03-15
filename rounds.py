@@ -70,7 +70,76 @@ plus_life = {"name" : "Extra Life",
             "mag" : 0,
             "dmg" : 0,
             "hlth" : 1}
+
 pwr_names = [plus_mag, plus_dmg, plus_hlth, plus_rad, plus_plus_dmg, no_mag, plus_size, less_size, plus_life]
+
+def powerup_selection(shot, deaths, opp_deaths, opp_health, opp_shot, player_num):
+    possible_powerups = pwr_names
+    if deaths - opp_deaths >= 3:
+        i = 0
+        while i < len(possible_powerups):
+            if pwr_names[i]["power"] < 7:
+                possible_powerups.pop(i)
+            else:
+                i += 1
+    if opp_health > 250:
+        i = 0
+        while i < len(possible_powerups):
+            if pwr_names[i]["power"] < 7:
+                possible_powerups.pop(i)
+            else:
+                i += 1
+    if 10 < shot < 40:
+        i = 0
+        while i < len(possible_powerups):
+            if pwr_names[i]["dmg"] < 0:
+                possible_powerups.pop(i)
+            else:
+                i += 1
+    if shot > 70:
+        i = 0
+        while i < len(possible_powerups):
+            if pwr_names[i]["mag"] < 0:
+                possible_powerups.pop(i)
+            else:
+                i += 1
+    if opp_shot < 40:
+        i = 0
+        while i < len(possible_powerups):
+            if pwr_names[i]["hlth"] < 0:
+                possible_powerups.pop(i)
+            else:
+                i += 1
+    a = rand(0,len(possible_powerups)-1)
+    b = rand(0,len(possible_powerups)-1)
+    c = rand(0,len(possible_powerups)-1)
+    while b == a or b == c:
+        b = rand(0,len(possible_powerups)-1)
+    while c == a:
+        c = rand(0, len(possible_powerups)-1)
+    final_powerups = [possible_powerups[a], possible_powerups[b], possible_powerups[c]]
+    print(f"Press 1 for {final_powerups[0]}\n"
+          f"Press 2 for {final_powerups[1]}\n"
+          f"Press 3 for {final_powerups[2]}\n")
+    keys = pygame.key.get_pressed()
+    picked = False
+    while not picked:
+        if keys[pygame.K_1]:
+            players[player_num].powerups.append(final_powerups[0])
+            picked = True
+        elif keys[pygame.K_2]:
+            players[player_num].powerups.append(final_powerups[1])
+            picked = True
+        elif keys[pygame.K_2]:
+            players[player_num].powerups.append(final_powerups[2])
+            picked = True
+
+
+
+
+
+
+
 
 
 class Blocks:
@@ -130,6 +199,7 @@ class Players:
 
 
 
+
     def update(self, dt):
         self.ground = False
         self.yacc = self.yacc * ydrag
@@ -138,6 +208,7 @@ class Players:
         self.xvel += self.xacc * dt
         self.xvel = self.xvel * xvdrag
         if self.health <= 0:
+            powerup_selection(self.shot, self.deaths, players[-1 * (self.num - 1)].deaths, players[-1 * (self.num - 1)].health, players[-1 * (self.num - 1)].shot, self.num)
             self.health = 500
             players[-1 * (self.num - 1)].health = 500
             self.deaths += 1
