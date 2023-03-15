@@ -40,7 +40,7 @@ plus_hlth = {"name" : "Bigger Heart",
             "power" : 7,
             "mag" : 0,
             "dmg" : 0,
-            "hlth" : 1}
+            "hlth" : 2}
 plus_rad = {"name" : "Bigger Bullets",
             "power" : 4,
             "mag" : 0,
@@ -49,11 +49,11 @@ plus_rad = {"name" : "Bigger Bullets",
 plus_plus_dmg = {"name" : "Super Damage",
             "power" : 10,
             "mag" : -1,
-            "dmg" : 1,
+            "dmg" : 3,
             "hlth" : 0}
 no_mag = {"name" : "Infinitely Big Mags",
             "power" : 8,
-            "mag" : 1,
+            "mag" : 10,
             "dmg" : -1,
             "hlth" : 0}
 plus_size = {"name" : "Size Up",
@@ -70,7 +70,7 @@ plus_life = {"name" : "Extra Life",
             "power" : 10,
             "mag" : 0,
             "dmg" : 0,
-            "hlth" : 1}
+            "hlth" : 5}
 
 pwr_names = [plus_mag, plus_dmg, plus_hlth, plus_rad, plus_plus_dmg, no_mag, plus_size, less_size, plus_life]
 
@@ -114,21 +114,16 @@ def powerup_selection(shot, deaths, opp_deaths, opp_health, opp_shot, player_num
     a = rand(0,len(possible_powerups)-1)
     b = rand(0,len(possible_powerups)-1)
     c = rand(0,len(possible_powerups)-1)
-    while b == a or b == c:
+    while b == a:
         b = rand(0,len(possible_powerups)-1)
-    while c == a:
+    while c == a or b == c:
         c = rand(0, len(possible_powerups)-1)
     final_powerups = [possible_powerups[a], possible_powerups[b], possible_powerups[c]]
     print(f"Enter 1 for {final_powerups[0]}\n"
           f"Enter 2 for {final_powerups[1]}\n"
           f"Enter 3 for {final_powerups[2]}\n")
-    picked = input("Which powerup would you like?")
-    if picked == "1":
-        players[player_num].powerups.append(final_powerups[0])
-    elif picked == "2":
-        players[player_num].powerups.append(final_powerups[1])
-    elif picked == "3":
-        players[player_num].powerups.append(final_powerups[2])
+    picked = int(input("Which powerup would you like?"))
+    players[player_num].powerups.append(final_powerups[picked-1])
 
 
 
@@ -169,7 +164,7 @@ class Borders:
 
 class Players:
     def __init__(self, radius=70, pos=(1900, 0), colour=(255, 255, 255), num = 1, keyup = None, keydown = None,
-                 keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500, deaths = 0, guid = 0, image = None, shot=0, powerups = []):
+                 keyleft = None, keyright = None,pl = 0,bullets = 10, xvel=0, yvel=0, xacc=0, yacc=0, last_jump = 0, health = 500, deaths = 0, guid = 0, image = None, shot=0, powerups = [], dmg_mlt = 1, blt_size = 1):
         self.radius = radius
         self.pos = pos
         self.colour = colour
@@ -192,6 +187,8 @@ class Players:
         self.image = pygame.transform.scale(image,(int(self.radius * 2), int(self.radius *2)))
         self.shot = shot
         self.powerups = powerups
+        self.dmg_mlt = dmg_mlt
+        self.blt_size = blt_size
 
 
 
@@ -212,6 +209,20 @@ class Players:
             players[-1 * (self.num - 1)].shot = 0
             self.pos = (s_width * 2 / 3, s_height / 1.3)
             players[-1 * (self.num - 1)].pos = (s_width / 3, s_height / 1.3)
+            for i in range(len(self.powerups)):
+                if self.powerups[i]["name"] == "Bigger Bullets":
+                    self.blt_size += 1
+                elif self.powerups[i]["name"] == "Size Up":
+                    self.radius *= 1.5
+                    self.image = pygame.transform.scale(image, (int(self.radius * 2), int(self.radius * 2)))
+                elif self.powerups[i]["name"] == "Size Down":
+                    self.radius *= 0.5
+                    self.image = pygame.transform.scale(image, (int(self.radius * 2), int(self.radius * 2)))
+                self.dmg_mlt += self.powerups[i]["dmg"]
+                self.health += self.powerups[i]["hlth"] * 100
+                self.bullets += self.powerups[i]["mag"] * 20
+                if self.bullets < 5:
+                    self.bullets = 5
 
 
 
@@ -243,6 +254,11 @@ class Players:
                 self.pos = (self.pos[0], border.pos[1] + self.radius + border.height)
                 self.yvel = 0
 
+
+
+
+
+
         if self.deaths == 5:
             for t in range(1000):
                 screen.fill((138, 40, 33))
@@ -254,6 +270,8 @@ class Players:
             players[-1*(self.num-1)].health = 500
             self.pos = (s_width*2/3, s_height/1.3)
             players[-1 * (self.num - 1)].pos = (s_width/3, s_height/1.3)
+            self.powerups = []
+            players[-1 * (self.num - 1)].powerups = []
 
 
 
@@ -275,7 +293,7 @@ class Bullet:
         self.bounces = bounces
         self.bounce_potential = bounce_potential
         self.dmg = dmg
-        self.radius = radius
+        self.radius = radius * players[self.pl].blt_size
         self.xvel = xvel
         self.yvel = yvel
 
@@ -305,7 +323,7 @@ class Bullet:
         for player in players:
             if (self.pos[0]-player.pos[0])**2+(self.pos[1]-player.pos[1])**2 <= (self.radius+player.radius)**2 and self.pl != player.pl:
                 self.bounces = self.bounce_potential + 1
-                player.health -= 10
+                player.health -= 10 * players[self.pl].dmg_mlt
         self.draw()
 
     def draw(self):
