@@ -124,6 +124,7 @@ def powerup_selection(shot, deaths, opp_deaths, opp_health, opp_shot, player_num
           f"Enter 3 for {final_powerups[2]}\n")
     picked = int(input("Which powerup would you like?"))
     players[player_num].powerups = final_powerups[picked-1]
+    return possible_powerups
 
 
 
