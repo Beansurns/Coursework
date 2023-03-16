@@ -9,7 +9,6 @@ s_width, s_height = 1920, 1080
 screen = pygame.display.set_mode([s_width,s_height])
 #screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 #s_width, s_height = pygame.display.get_surface().get_size()
-print(s_width, s_height)
 g = 9.8*4
 ydrag = 0.8
 xdrag = 0.5
